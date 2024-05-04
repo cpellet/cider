@@ -1,0 +1,114 @@
+spark:
+  app:
+    name: "mm"
+  sql:
+    files:
+      maxPartitionBytes: 67108864
+  driver:
+    memory: "8g"
+    maxResultSize: "2g"
+  loglevel: "ERROR"
+
+
+path:
+  input_data:
+    directory_path: "/Users/cyruspellet/Downloads/features/data/"
+    file_paths:
+      antennas: 'antennes/antennes.csv'
+      recharges: 'recharges/recharges.csv'
+      mobiledata: 'data_mobile/data.csv'
+#      mobilemoney: 'transactions/om.csv'
+      cdr: 'voix_sms/voix_sms_onnet_cider.csv'
+  working:
+    directory_path: "../outputs/"
+
+
+col_names:
+  antennas:
+    antenna_id: "ms_location"
+    latitude: "latitude"
+    longitude: "longitude"
+  recharges:
+    caller_id: "msisdn"
+    amount: "cost"
+    timestamp: "call_event_date"
+  mobiledata:
+    caller_id: "msisdn"
+    volume: "volume"
+    timestamp: "call_time"
+#  mobilemoney:
+#    recipient_id: "msisdn"
+#    caller_id: "_c0" # this is a dummy value
+#    timestamp: "transfer_date"
+#    amount: "transaction_amount"
+#    txn_type: "direction"
+  cdr:
+    txn_type: "traffic_type"
+    caller_id: "caller_id"
+    recipient_id: "recipient_id"
+    timestamp: "timestamp"
+    duration: "duration"
+    caller_antenna: "caller_antenna"
+    recipient_antenna: "recipient_antenna"
+    international: "international"
+  geo: 'cantons'
+
+
+col_types:
+  survey:
+    continuous: [ "con0", "con1", "con2", "con3", "con4", "con5", "con6", "con7", "con8", "con9" ]
+    categorical: [ "cat0", "cat1", "cat2", "cat3", "cat4", "cat5", "cat6", "cat7", "cat8", "cat9" ]
+    binary: [ "bin0", "bin1", "bin2", "bin3", "bin4", "bin5", "bin6", "bin7", "bin8", "bin9" ]
+
+
+params:
+  cdr:
+    weekend: [1, 7]
+    start_of_day: 7
+    end_of_day: 19
+  home_location:
+    filter_hours: null
+  automl:
+    autosklearn:
+      time_left: 3600
+      n_jobs: 1
+      memory_limit: 3072
+    autogluon:
+      time_limit: 3600
+      eval_metric: 'r2'
+      label: 'label'
+      sample_weight: 'weight'
+  opt_in_default: false
+  csv:
+    sep: ","
+
+
+hyperparams:
+  'linear':
+    'dropmissing__threshold': [0.9, 1]
+    'droplowvariance__threshold': [ 0, 0.01 ]
+    'winsorizer__limits': [[0., 1.], [0.005, .995]]
+  'lasso':
+    'dropmissing__threshold': [ 0.9, 1 ]
+    'droplowvariance__threshold': [ 0, 0.01 ]
+    'winsorizer__limits': [[0., 1.], [0.005, .995]]
+    'model__alpha': [ .001, .01, .05, .03, .1 ]
+  'ridge':
+    'dropmissing__threshold': [ 0.9, 1 ]
+    'droplowvariance__threshold': [ 0, 0.01 ]
+    'winsorizer__limits': [[0., 1.],  [0.005, .995]]
+    'model__alpha': [ .001, .01, .05, .03, .1 ]
+  'randomforest':
+    'dropmissing__threshold': [ 0.9, 1 ]
+    'droplowvariance__threshold': [ 0, 0.01 ]
+    'winsorizer__limits': [[0., 1.], [0.005, .995]]
+    'model__max_depth': [ 2, 4, 6, 8, 10 ]
+    'model__n_estimators': [ 50, 100, 200 ]
+  'gradientboosting':
+    'dropmissing__threshold': [ 0.99 ]
+    'droplowvariance__threshold': [ 0.01 ]
+    'winsorizer__limits': [[0., 1.], [0.005, .995]]
+    'model__min_data_in_leaf': [ 10, 20, 50 ]
+    'model__num_leaves': [ 5, 10, 20 ]
+    'model__learning_rate': [ 0.05, 0.075, 0.1 ]
+    'model__n_estimators': [ 50, 100, 200 ]
