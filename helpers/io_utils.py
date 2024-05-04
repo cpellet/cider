@@ -161,11 +161,11 @@ class IOUtils:
 
         elif fpath is not None:
             if fpath.is_file():
-                dataset = self.spark.read.csv(str(fpath), header=True)
+                dataset = self.spark.read.csv(str(fpath), header=True, sep=self.cfg.params.csv.sep)
 
             # Load data if in chunks
             else:
-                dataset = self.spark.read.csv(str(fpath / '*.csv'), header=True)
+                dataset = self.spark.read.csv(str(fpath / '*.csv'), header=True, sep=self.cfg.params.csv.sep)
         else:
             raise ValueError('No filename or pandas/spark dataframe provided.')
         if dataset_name in self.cfg.col_names:
